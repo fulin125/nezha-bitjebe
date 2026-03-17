@@ -11,29 +11,31 @@ type Particle = {
   duration: number
 }
 
-const MOBILE_MEDIA_QUERY = "(max-width: 768px)"
-
 const COLORS = [
-  "rgba(255,255,255,0.95)",
-  "rgba(191,219,254,0.92)",
-  "rgba(147,197,253,0.9)",
-  "rgba(216,180,254,0.92)",
-  "rgba(196,181,253,0.9)",
-  "rgba(251,207,232,0.92)",
-  "rgba(244,114,182,0.82)",
-  "rgba(253,230,138,0.88)",
-  "rgba(167,243,208,0.88)",
-  "rgba(125,211,252,0.88)",
+  "rgba(255,255,255,0.96)",
+  "rgba(191,219,254,0.94)",
+  "rgba(147,197,253,0.92)",
+  "rgba(216,180,254,0.94)",
+  "rgba(196,181,253,0.92)",
+  "rgba(251,207,232,0.94)",
+  "rgba(244,114,182,0.88)",
+  "rgba(253,230,138,0.9)",
+  "rgba(167,243,208,0.9)",
+  "rgba(125,211,252,0.9)",
 ]
 
 function random(min: number, max: number) {
   return Math.random() * (max - min) + min
 }
 
-function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
-  const count = isMobile ? 14 : 22
-  const spread = isMobile ? 70 : 110
-  const baseSize = isMobile ? 4.2 : 5.2
+function createBurst(x: number, y: number): Particle[] {
+  // 手机和电脑统一数量
+  const count = 22
+  // 更开一点
+  const spread = 160
+  // 统一颗粒大小
+  const baseSize = 5
+
   const now = Date.now() + Math.floor(Math.random() * 100000)
 
   return Array.from({ length: count }).map((_, index) => {
@@ -48,7 +50,7 @@ function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
       dy: Math.sin(angle) * distance,
       size: random(baseSize - 0.8, baseSize + 1.4),
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      duration: random(320, 420), // 0.32s ~ 0.42s
+      duration: random(420, 620),
     }
   })
 }
@@ -60,14 +62,12 @@ export default function ClickParticles() {
   const lastEmitRef = useRef(0)
 
   useEffect(() => {
-    const isMobile = () => window.matchMedia(MOBILE_MEDIA_QUERY).matches
-
     const emit = (x: number, y: number) => {
       const now = Date.now()
       if (now - lastEmitRef.current < 30) return
       lastEmitRef.current = now
 
-      const burst = createBurst(x, y, isMobile())
+      const burst = createBurst(x, y)
       setParticles((prev) => [...prev, ...burst])
 
       burst.forEach((item) => {
@@ -86,12 +86,8 @@ export default function ClickParticles() {
     const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0]
       if (!touch) return
-
       isTouchMovingRef.current = false
-      touchStartRef.current = {
-        x: touch.clientX,
-        y: touch.clientY,
-      }
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY }
     }
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -103,17 +99,13 @@ export default function ClickParticles() {
       const dy = touch.clientY - start.y
       const distance = Math.sqrt(dx * dx + dy * dy)
 
-      if (distance > 10) {
-        isTouchMovingRef.current = true
-      }
+      if (distance > 10) isTouchMovingRef.current = true
     }
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (isTouchMovingRef.current) return
-
       const touch = e.changedTouches[0]
       if (!touch) return
-
       emit(touch.clientX, touch.clientY)
     }
 
@@ -160,14 +152,17 @@ export default function ClickParticles() {
             pointer-events: none;
             will-change: transform, opacity;
             animation-name: click-particle-burst;
-            animation-timing-function: linear;
+            animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
             animation-fill-mode: forwards;
-            box-shadow: 0 0 6px rgba(255,255,255,0.2);
+            box-shadow:
+              0 0 8px rgba(255,255,255,0.65),
+              0 0 14px rgba(191,219,254,0.35),
+              0 0 20px rgba(216,180,254,0.25);
           }
 
           @keyframes click-particle-burst {
             0% {
-              opacity: 0.95;
+              opacity: 1;
               transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(1);
             }
             100% {
@@ -175,7 +170,7 @@ export default function ClickParticles() {
               transform:
                 translate(-50%, -50%)
                 translate3d(var(--dx), var(--dy), 0)
-                scale(0.7);
+                scale(0.72);
             }
           }
         `}
@@ -186,10 +181,7 @@ export default function ClickParticles() {
           <span
             key={p.id}
             className="click-particle-anchor"
-            style={{
-              left: `${p.x}px`,
-              top: `${p.y}px`,
-            }}
+            style={{ left: `${p.x}px`, top: `${p.y}px` }}
           >
             <span
               className="click-particle-dot"
