@@ -10,17 +10,19 @@ type Particle = {
   color: string
   rotate: number
   duration: number
+  trailLength: number
+  trailThickness: number
 }
 
 const MOBILE_MEDIA_QUERY = "(max-width: 768px)"
 
 const COLORS = [
-  "rgba(255,255,255,0.98)",
-  "rgba(147,197,253,0.98)",
-  "rgba(196,181,253,0.96)",
-  "rgba(244,114,182,0.95)",
-  "rgba(96,165,250,0.95)",
-  "rgba(253,224,71,0.95)",
+  "rgba(255,255,255,0.95)",
+  "rgba(191,219,254,0.92)",
+  "rgba(216,180,254,0.92)",
+  "rgba(251,207,232,0.9)",
+  "rgba(253,230,138,0.88)",
+  "rgba(167,243,208,0.88)",
 ]
 
 function random(min: number, max: number) {
@@ -28,14 +30,14 @@ function random(min: number, max: number) {
 }
 
 function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
-  const count = isMobile ? 10 : 16
-  const spread = isMobile ? 70 : 110
-  const baseSize = isMobile ? 12 : 18
+  const count = isMobile ? 14 : 22
+  const spread = isMobile ? 80 : 125
+  const baseSize = isMobile ? 4.2 : 5.2
   const now = Date.now() + Math.floor(Math.random() * 100000)
 
   return Array.from({ length: count }).map((_, index) => {
-    const angle = (Math.PI * 2 * index) / count + random(-0.22, 0.22)
-    const distance = random(spread * 0.45, spread)
+    const angle = (Math.PI * 2 * index) / count + random(-0.12, 0.12)
+    const distance = random(spread * 0.35, spread)
 
     return {
       id: now + index,
@@ -43,10 +45,12 @@ function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
       y,
       dx: Math.cos(angle) * distance,
       dy: Math.sin(angle) * distance,
-      size: random(baseSize - 3, baseSize + 6),
+      size: random(baseSize - 1, baseSize + 1.6),
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      rotate: random(0, 220),
-      duration: random(700, 980),
+      rotate: (angle * 180) / Math.PI,
+      duration: random(850, 1250),
+      trailLength: random(isMobile ? 10 : 12, isMobile ? 18 : 24),
+      trailThickness: random(1, 1.8),
     }
   })
 }
@@ -149,37 +153,62 @@ export default function ClickParticles() {
             height: 0;
           }
 
+          .click-particle-wrap {
+            position: absolute;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+            animation-name: click-particle-burst;
+            animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+            animation-fill-mode: forwards;
+            will-change: transform, opacity;
+          }
+
           .click-particle-dot {
             position: absolute;
             left: 0;
             top: 0;
             border-radius: 999px;
+            transform: translate(-50%, -50%);
             pointer-events: none;
-            will-change: transform, opacity;
-            animation-name: click-particle-burst;
-            animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-            animation-fill-mode: forwards;
             box-shadow:
-              0 0 10px rgba(255,255,255,0.7),
-              0 0 20px rgba(147,197,253,0.45),
-              0 0 30px rgba(244,114,182,0.2);
+              0 0 6px rgba(255,255,255,0.45),
+              0 0 12px rgba(191,219,254,0.18),
+              0 0 18px rgba(216,180,254,0.1);
+            filter: saturate(1.05);
+          }
+
+          .click-particle-trail {
+            position: absolute;
+            left: 0;
+            top: 0;
+            transform-origin: left center;
+            pointer-events: none;
+            border-radius: 999px;
+            opacity: 0.8;
+            background: linear-gradient(
+              90deg,
+              rgba(255,255,255,0.0) 0%,
+              rgba(255,255,255,0.08) 12%,
+              var(--trail-color) 55%,
+              rgba(255,255,255,0.92) 100%
+            );
+            filter: blur(0.2px);
           }
 
           @keyframes click-particle-burst {
             0% {
-              opacity: 1;
-              transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(1);
+              opacity: 0.98;
+              transform: translate3d(0, 0, 0) scale(0.92);
             }
-            70% {
-              opacity: 0.92;
+            55% {
+              opacity: 0.9;
             }
             100% {
               opacity: 0;
               transform:
-                translate(-50%, -50%)
                 translate3d(var(--dx), var(--dy), 0)
-                scale(0.25)
-                rotate(var(--rotate));
+                scale(0.42);
             }
           }
         `}
@@ -196,19 +225,36 @@ export default function ClickParticles() {
             }}
           >
             <span
-              className="click-particle-dot"
+              className="click-particle-wrap"
               style={
                 {
-                  width: `${p.size}px`,
-                  height: `${p.size}px`,
-                  background: p.color,
                   animationDuration: `${p.duration}ms`,
                   ["--dx" as any]: `${p.dx}px`,
                   ["--dy" as any]: `${p.dy}px`,
-                  ["--rotate" as any]: `${p.rotate}deg`,
                 } as React.CSSProperties
               }
-            />
+            >
+              <span
+                className="click-particle-trail"
+                style={
+                  {
+                    width: `${p.trailLength}px`,
+                    height: `${p.trailThickness}px`,
+                    transform: `translate(-100%, -50%) rotate(${p.rotate}deg)`,
+                    ["--trail-color" as any]: p.color,
+                  } as React.CSSProperties
+                }
+              />
+
+              <span
+                className="click-particle-dot"
+                style={{
+                  width: `${p.size}px`,
+                  height: `${p.size}px`,
+                  background: p.color,
+                }}
+              />
+            </span>
           </span>
         ))}
       </div>
