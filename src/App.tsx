@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom"
 
+import ClickParticles from "./components/ClickParticles"
 import { DashCommand } from "./components/DashCommand"
 import ErrorBoundary from "./components/ErrorBoundary"
 import Footer from "./components/Footer"
@@ -29,6 +30,7 @@ const MainApp: React.FC = () => {
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   })
+
   const { i18n } = useTranslation()
   const { setTheme } = useTheme()
   const [isCustomCodeInjected, setIsCustomCodeInjected] = useState(false)
@@ -50,7 +52,7 @@ const MainApp: React.FC = () => {
     if (forceTheme === "dark" || forceTheme === "light") {
       setTheme(forceTheme)
     }
-  }, [forceTheme])
+  }, [forceTheme, setTheme])
 
   if (error) {
     return <ErrorPage code={500} message={error.message} />
@@ -68,10 +70,13 @@ const MainApp: React.FC = () => {
     i18n.changeLanguage(settingData?.data?.config?.language)
   }
 
-  const customMobileBackgroundImage = window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : undefined
+  const customMobileBackgroundImage =
+    window.CustomMobileBackgroundImage !== "" ? window.CustomMobileBackgroundImage : undefined
 
   return (
     <ErrorBoundary>
+      <ClickParticles />
+
       {/* 固定定位的背景层 */}
       {customBackgroundImage && (
         <div
@@ -81,12 +86,14 @@ const MainApp: React.FC = () => {
           style={{ backgroundImage: `url(${customBackgroundImage})` }}
         />
       )}
+
       {customMobileBackgroundImage && (
         <div
           className={cn("fixed inset-0 z-0 bg-cover min-h-lvh bg-no-repeat bg-center sm:hidden dark:brightness-75")}
           style={{ backgroundImage: `url(${customMobileBackgroundImage})` }}
         />
       )}
+
       <div
         className={cn("flex min-h-screen w-full flex-col", {
           "bg-background": !customBackgroundImage,
@@ -96,12 +103,14 @@ const MainApp: React.FC = () => {
           <RefreshToast />
           <Header />
           <DashCommand />
+
           <Routes>
             <Route path="/" element={<Server />} />
             <Route path="/server/:id" element={<ServerDetail />} />
             <Route path="/error" element={<ErrorPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+
           <Footer />
         </main>
       </div>
