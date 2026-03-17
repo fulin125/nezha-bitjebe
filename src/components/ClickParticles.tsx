@@ -30,7 +30,7 @@ function random(min: number, max: number) {
 function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
   const count = isMobile ? 8 : 12
   const spread = isMobile ? 60 : 90
-  const baseSize = isMobile ? 10 : 14
+  const baseSize = isMobile ? 18 : 24
   const now = Date.now() + Math.floor(Math.random() * 100000)
 
   return Array.from({ length: count }).map((_, index) => {
