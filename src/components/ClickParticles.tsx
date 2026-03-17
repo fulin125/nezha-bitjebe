@@ -12,16 +12,15 @@ type Particle = {
 }
 
 const COLORS = [
-  "rgba(255,255,255,0.96)",
-  "rgba(191,219,254,0.94)",
-  "rgba(147,197,253,0.92)",
-  "rgba(216,180,254,0.94)",
-  "rgba(196,181,253,0.92)",
-  "rgba(251,207,232,0.94)",
-  "rgba(244,114,182,0.88)",
-  "rgba(253,230,138,0.9)",
-  "rgba(167,243,208,0.9)",
-  "rgba(125,211,252,0.9)",
+  "rgba(255,255,255,1)",
+  "rgba(96,165,250,1)",
+  "rgba(59,130,246,1)",
+  "rgba(168,85,247,1)",
+  "rgba(236,72,153,1)",
+  "rgba(244,63,94,1)",
+  "rgba(250,204,21,1)",
+  "rgba(52,211,153,1)",
+  "rgba(34,211,238,1)",
 ]
 
 function random(min: number, max: number) {
@@ -29,11 +28,8 @@ function random(min: number, max: number) {
 }
 
 function createBurst(x: number, y: number): Particle[] {
-  // 手机和电脑统一数量
   const count = 22
-  // 更开一点
   const spread = 160
-  // 统一颗粒大小
   const baseSize = 5
 
   const now = Date.now() + Math.floor(Math.random() * 100000)
@@ -50,7 +46,7 @@ function createBurst(x: number, y: number): Particle[] {
       dy: Math.sin(angle) * distance,
       size: random(baseSize - 0.8, baseSize + 1.4),
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      duration: random(420, 620),
+      duration: random(700, 920),
     }
   })
 }
@@ -152,12 +148,12 @@ export default function ClickParticles() {
             pointer-events: none;
             will-change: transform, opacity;
             animation-name: click-particle-burst;
-            animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+            animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
             animation-fill-mode: forwards;
             box-shadow:
-              0 0 8px rgba(255,255,255,0.65),
-              0 0 14px rgba(191,219,254,0.35),
-              0 0 20px rgba(216,180,254,0.25);
+              0 0 10px rgba(255,255,255,0.85),
+              0 0 18px rgba(96,165,250,0.55),
+              0 0 26px rgba(168,85,247,0.4);
           }
 
           @keyframes click-particle-burst {
