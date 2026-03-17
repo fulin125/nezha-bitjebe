@@ -48,7 +48,7 @@ function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
       dy: Math.sin(angle) * distance,
       size: random(baseSize - 0.8, baseSize + 1.4),
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      duration: random(200, 280), // 0.20s ~ 0.28s
+      duration: random(320, 420), // 0.32s ~ 0.42s
     }
   })
 }
