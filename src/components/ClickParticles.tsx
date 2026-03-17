@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
+
+import React, { useEffect, useRef, useState } from "react"
 
 type Particle = {
   id: number
@@ -12,14 +13,14 @@ type Particle = {
   duration: number
 }
 
-const MOBILE_MEDIA_QUERY = '(max-width: 768px)'
+const MOBILE_MEDIA_QUERY = "(max-width: 768px)"
 
 const COLORS = [
-  'rgba(255,255,255,0.95)',
-  'rgba(147,197,253,0.95)',
-  'rgba(196,181,253,0.95)',
-  'rgba(244,114,182,0.92)',
-  'rgba(96,165,250,0.92)',
+  "rgba(255,255,255,0.95)",
+  "rgba(147,197,253,0.95)",
+  "rgba(196,181,253,0.95)",
+  "rgba(244,114,182,0.92)",
+  "rgba(96,165,250,0.92)",
 ]
 
 function random(min: number, max: number) {
@@ -35,15 +36,13 @@ function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
   return Array.from({ length: count }).map((_, index) => {
     const angle = (Math.PI * 2 * index) / count + random(-0.18, 0.18)
     const distance = random(spread * 0.45, spread)
-    const dx = Math.cos(angle) * distance
-    const dy = Math.sin(angle) * distance
 
     return {
       id: now + index,
       x,
       y,
-      dx,
-      dy,
+      dx: Math.cos(angle) * distance,
+      dy: Math.sin(angle) * distance,
       size: random(baseSize - 1.5, baseSize + 2),
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
       rotate: random(0, 180),
@@ -77,8 +76,8 @@ export default function ClickParticles() {
     }
 
     const handlePointerDown = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return
-      if (e.pointerType === 'touch') return
+      if (e.pointerType === "mouse" && e.button !== 0) return
+      if (e.pointerType === "touch") return
       emit(e.clientX, e.clientY)
     }
 
@@ -116,16 +115,16 @@ export default function ClickParticles() {
       emit(touch.clientX, touch.clientY)
     }
 
-    window.addEventListener('pointerdown', handlePointerDown, { passive: true })
-    window.addEventListener('touchstart', handleTouchStart, { passive: true })
-    window.addEventListener('touchmove', handleTouchMove, { passive: true })
-    window.addEventListener('touchend', handleTouchEnd, { passive: true })
+    window.addEventListener("pointerdown", handlePointerDown, { passive: true })
+    window.addEventListener("touchstart", handleTouchStart, { passive: true })
+    window.addEventListener("touchmove", handleTouchMove, { passive: true })
+    window.addEventListener("touchend", handleTouchEnd, { passive: true })
 
     return () => {
-      window.removeEventListener('pointerdown', handlePointerDown)
-      window.removeEventListener('touchstart', handleTouchStart)
-      window.removeEventListener('touchmove', handleTouchMove)
-      window.removeEventListener('touchend', handleTouchEnd)
+      window.removeEventListener("pointerdown", handlePointerDown)
+      window.removeEventListener("touchstart", handleTouchStart)
+      window.removeEventListener("touchmove", handleTouchMove)
+      window.removeEventListener("touchend", handleTouchEnd)
     }
   }, [])
 
@@ -141,8 +140,19 @@ export default function ClickParticles() {
             overflow: hidden;
           }
 
-          .click-particle {
+          .click-particle-anchor {
             position: fixed;
+            pointer-events: none;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+          }
+
+          .click-particle-dot {
+            position: absolute;
+            left: 0;
+            top: 0;
             border-radius: 999px;
             pointer-events: none;
             will-change: transform, opacity;
@@ -157,14 +167,18 @@ export default function ClickParticles() {
           @keyframes click-particle-burst {
             0% {
               opacity: 0.95;
-              transform: translate3d(0, 0, 0) scale(1);
+              transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(1);
             }
             70% {
               opacity: 0.85;
             }
             100% {
               opacity: 0;
-              transform: translate3d(var(--dx), var(--dy), 0) scale(0.2) rotate(var(--rotate));
+              transform:
+                translate(-50%, -50%)
+                translate3d(var(--dx), var(--dy), 0)
+                scale(0.2)
+                rotate(var(--rotate));
             }
           }
         `}
@@ -174,21 +188,27 @@ export default function ClickParticles() {
         {particles.map((p) => (
           <span
             key={p.id}
-            className="click-particle"
-            style={
-              {
-                width: `${p.size}px`,
-                height: `${p.size}px`,
-                background: p.color,
-                left: `${p.x - p.size / 2}px`,
-                top: `${p.y - p.size / 2}px`,
-                animationDuration: `${p.duration}ms`,
-                ['--dx' as any]: `${p.dx}px`,
-                ['--dy' as any]: `${p.dy}px`,
-                ['--rotate' as any]: `${p.rotate}deg`,
-              } as React.CSSProperties
-            }
-          />
+            className="click-particle-anchor"
+            style={{
+              left: `${p.x}px`,
+              top: `${p.y}px`,
+            }}
+          >
+            <span
+              className="click-particle-dot"
+              style={
+                {
+                  width: `${p.size}px`,
+                  height: `${p.size}px`,
+                  background: p.color,
+                  animationDuration: `${p.duration}ms`,
+                  ["--dx" as any]: `${p.dx}px`,
+                  ["--dy" as any]: `${p.dy}px`,
+                  ["--rotate" as any]: `${p.rotate}deg`,
+                } as React.CSSProperties
+              }
+            />
+          </span>
         ))}
       </div>
     </>
