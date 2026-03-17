@@ -14,28 +14,28 @@ type Particle = {
 
 const MOBILE_MEDIA_QUERY = "(max-width: 768px)"
 
-const COLORS = [
-  "rgba(255,255,255,0.98)",
-  "rgba(147,197,253,0.98)",
-  "rgba(196,181,253,0.96)",
-  "rgba(244,114,182,0.95)",
-  "rgba(96,165,250,0.95)",
-  "rgba(253,224,71,0.95)",
-]
+// 测试专用：全部改成大红点，方便肉眼确认是否生效
+const COLORS = ["rgba(255,0,0,1)"]
 
 function random(min: number, max: number) {
   return Math.random() * (max - min) + min
 }
 
 function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
-  const count = isMobile ? 8 : 12
-  const spread = isMobile ? 60 : 90
-  const baseSize = isMobile ? 50 : 74
+  // 测试专用：粒子数量减少，方便观察
+  const count = isMobile ? 3 : 4
+
+  // 测试专用：扩散距离缩小，确保大红点集中在点击附近
+  const spread = isMobile ? 20 : 30
+
+  // 测试专用：粒子变得非常大
+  const baseSize = isMobile ? 40 : 60
+
   const now = Date.now() + Math.floor(Math.random() * 100000)
 
   return Array.from({ length: count }).map((_, index) => {
-    const angle = (Math.PI * 2 * index) / count + random(-0.2, 0.2)
-    const distance = random(spread * 0.45, spread)
+    const angle = (Math.PI * 2 * index) / count + random(-0.15, 0.15)
+    const distance = random(spread * 0.5, spread)
 
     return {
       id: now + index,
@@ -43,10 +43,10 @@ function createBurst(x: number, y: number, isMobile: boolean): Particle[] {
       y,
       dx: Math.cos(angle) * distance,
       dy: Math.sin(angle) * distance,
-      size: random(baseSize - 2, baseSize + 4),
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      rotate: random(0, 220),
-      duration: random(650, 900),
+      size: random(baseSize - 5, baseSize + 8),
+      color: COLORS[0],
+      rotate: random(0, 180),
+      duration: random(700, 1000),
     }
   })
 }
@@ -160,9 +160,9 @@ export default function ClickParticles() {
             animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
             animation-fill-mode: forwards;
             box-shadow:
-              0 0 10px rgba(255,255,255,0.7),
-              0 0 20px rgba(147,197,253,0.45),
-              0 0 30px rgba(244,114,182,0.2);
+              0 0 12px rgba(255,0,0,0.9),
+              0 0 24px rgba(255,0,0,0.7),
+              0 0 40px rgba(255,0,0,0.45);
           }
 
           @keyframes click-particle-burst {
@@ -171,14 +171,14 @@ export default function ClickParticles() {
               transform: translate(-50%, -50%) translate3d(0, 0, 0) scale(1);
             }
             70% {
-              opacity: 0.92;
+              opacity: 0.95;
             }
             100% {
               opacity: 0;
               transform:
                 translate(-50%, -50%)
                 translate3d(var(--dx), var(--dy), 0)
-                scale(0.25)
+                scale(0.35)
                 rotate(var(--rotate));
             }
           }
