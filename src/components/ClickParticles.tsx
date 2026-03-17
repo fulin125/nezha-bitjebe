@@ -143,12 +143,9 @@ export default function ClickParticles() {
 
           .click-particle {
             position: fixed;
-            left: 0;
-            top: 0;
             border-radius: 999px;
             pointer-events: none;
             will-change: transform, opacity;
-            transform: translate3d(0, 0, 0) scale(1);
             animation-name: click-particle-burst;
             animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
             animation-fill-mode: forwards;
@@ -183,9 +180,9 @@ export default function ClickParticles() {
                 width: `${p.size}px`,
                 height: `${p.size}px`,
                 background: p.color,
-                transform: `translate3d(${p.x - p.size / 2}px, ${p.y - p.size / 2}px, 0)`,
+                left: `${p.x - p.size / 2}px`,
+                top: `${p.y - p.size / 2}px`,
                 animationDuration: `${p.duration}ms`,
-                animationName: 'click-particle-burst',
                 ['--dx' as any]: `${p.dx}px`,
                 ['--dy' as any]: `${p.dy}px`,
                 ['--rotate' as any]: `${p.rotate}deg`,
